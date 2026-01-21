@@ -3,13 +3,12 @@ FROM node:18-alpine AS builder
 
 WORKDIR /usr/src/app
 
-# Instalamos dependencias de sistema necesarias para compilación (si hubiera)
-# Para nestjs standard no suele hacer falta nada extra, pero a veces python/make para node-gyp
-# RUN apk add --no-cache python3 make g++
+# Copiamos explícitamente para evitar ambigüedades
+COPY package.json package-lock.json ./
+# Debug: Listar archivos para verificar que se copiaron
+RUN ls -la
 
-COPY package*.json ./
-
-# Instalamos dependencias (usamos install en lugar de ci para mayor flexibilidad si falta lockfile)
+# Instalamos dependencias
 RUN npm install
 
 COPY . .
@@ -22,14 +21,14 @@ FROM node:18-alpine
 
 WORKDIR /usr/src/app
 
-COPY package*.json ./
+COPY package.json package-lock.json ./
 
 # Instalamos solo dependencias de producción
 RUN npm install --only=production
 
 COPY --from=builder /usr/src/app/dist ./dist
 
-# Exponemos el puerto (útil para documentación, aunque Railway lo maneja)
+# Exponemos el puerto
 EXPOSE 3003
 
 # Comando de inicio
