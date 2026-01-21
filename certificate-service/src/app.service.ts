@@ -1,13 +1,16 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import PDFDocument from 'pdfkit';
-import * as nodemailer from 'nodemailer';
+import { Resend } from 'resend';
 
 @Injectable()
 export class AppService {
   private readonly logger = new Logger(AppService.name);
+  private resend: Resend;
 
-  constructor(private readonly configService: ConfigService) {}
+  constructor(private readonly configService: ConfigService) {
+    this.resend = new Resend(this.configService.get('RESEND_API_KEY') || 're_MQv5eWkh_FaHYnrmfgaZJtfax4d7yGSim');
+  }
 
   async procesarCertificado(data: any) {
     try {
@@ -39,23 +42,33 @@ export class AppService {
   }
 
   private async enviarEmail(data: any, pdfBuffer: Buffer) {
-    const transporter = nodemailer.createTransport({
-      host: this.configService.get('SMTP_HOST'),
-      port: this.configService.get('SMTP_PORT'),
-      secure: false, // true para puerto 465, false para otros
-      auth: {
-        user: this.configService.get('SMTP_USER'),
-        pass: this.configService.get('SMTP_PASS'),
-      },
-    });
+    try {
+      const { data: emailData, error } = await this.resend.emails.send({
+        from: 'SEVOTEC <onboarding@resend.dev>',
+        to: [data.email],
+        subject: 'Certificado de Votación SEVOTEC',
+        html: `
+        <p>Hola <strong>${data.nombres}</strong>,</p>
+        <p>Adjunto encontrarás tu certificado de votación oficial.</p>
+        <p>Gracias por cumplir con tu deber cívico.</p>
+        `,
+        attachments: [
+          {
+            filename: `Certificado SEVOTEC ${data.cedula}.pdf`,
+            content: pdfBuffer,
+          },
+        ],
+      });
 
-    await transporter.sendMail({
-      from: `"Voto Electrónico" <noreply@sevotec.com>`,
-      // from: `"Voto Electrónico" <${this.configService.get('SMTP_USER')}>`,
-      to: data.email,
-      subject: 'Certificado de Votación SEVOTEC',
-      text: `Hola ${data.nombres}, adjunto tu certificado.`,
-    attachments: [{ filename: `Certificado SEVOTEC ${data.cedula}.pdf`, content: pdfBuffer }],
-    });
+      if (error) {
+        this.logger.error('Error enviando email con Resend:', error);
+        throw new Error(error.message);
+      }
+
+      this.logger.log(`Email enviado con ID: ${emailData?.id}`);
+    } catch (error) {
+      this.logger.error('Excepción al enviar email:', error);
+      throw error;
+    }
   }
 }

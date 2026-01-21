@@ -40,13 +40,9 @@ PORT=3003
 # Token de seguridad (Debe coincidir con el servicio emisor/Census)
 INTERNAL_SECRET=SuperSecretoSeguro2026
 
-# --- Configuración SMTP (Correo) ---
-# Ejemplo para Gmail / Outlook
-SMTP_HOST=smtp.gmail.com
-SMTP_PORT=587
-SMTP_USER=tu_correo@gmail.com
-# NOTA: Si usas Gmail, usa una "Contraseña de Aplicación", no tu clave normal.
-SMTP_PASS=tu_password_de_aplicacion_16_letras
+# --- Configuración Email (Resend) ---
+# API Key de Resend (https://resend.com)
+RESEND_API_KEY=re_123456789
 ```
 
 > **Nota sobre SMTP:** Si usas el puerto **587**, el sistema utiliza `secure: false` (STARTTLS). Si usas el puerto **465**, el código debería ajustarse a `secure: true`.

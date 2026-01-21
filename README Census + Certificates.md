@@ -61,11 +61,8 @@ INTERNAL_SECRET=SuperSecretoSeguro2026
 PORT=3003
 INTERNAL_SECRET=SuperSecretoSeguro2026
 
-# Configuración SMTP (Ejemplo Gmail)
-SMTP_HOST=smtp.gmail.com
-SMTP_PORT=587
-SMTP_USER=tu_correo@gmail.com
-SMTP_PASS=tu_password_de_aplicacion_16_letras
+# Configuración Email (Resend)
+RESEND_API_KEY=re_123456789
 ```
 
 ---
