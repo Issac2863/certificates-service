@@ -9,8 +9,8 @@ WORKDIR /usr/src/app
 
 COPY package*.json ./
 
-# Instalamos dependencias
-RUN npm ci
+# Instalamos dependencias (usamos install en lugar de ci para mayor flexibilidad si falta lockfile)
+RUN npm install
 
 COPY . .
 
@@ -25,7 +25,7 @@ WORKDIR /usr/src/app
 COPY package*.json ./
 
 # Instalamos solo dependencias de producción
-RUN npm ci --only=production
+RUN npm install --only=production
 
 COPY --from=builder /usr/src/app/dist ./dist
 
